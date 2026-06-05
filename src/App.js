@@ -2,42 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 const datosIniciales = [
-  { 
-    id: 1, 
-    nombre: 'Juan', 
-    apellido: 'Pérez', 
-    numero: '0414-1234567', 
-    notas: 'Compañero de la universidad', 
-    apodo: 'Juancho', 
-    foto: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=500&q=60' 
-  },
-  { 
-    id: 2, 
-    nombre: 'María', 
-    apellido: 'Gómez', 
-    numero: '0412-9876543', 
-    notas: 'Proyecto de desarrollo', 
-    apodo: 'Mari', 
-    foto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=60' 
-  },
-  { 
-    id: 3, 
-    nombre: 'Carlos', 
-    apellido: 'López', 
-    numero: '0424-5555555', 
-    notas: 'Profesor de base de datos', 
-    apodo: 'Profe', 
-    foto: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=500&q=60' 
-  },
-  { 
-    id: 4, 
-    nombre: 'Ana', 
-    apellido: 'Martínez', 
-    numero: '0416-1112233', 
-    notas: 'Diseñadora UX/UI', 
-    apodo: 'Anita', 
-    foto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=500&q=60' 
-  },
+  { id: 1, nombre: 'Juan', apellido: 'Pérez', numero: '0414-1234567', notas: 'Compañero de la universidad', apodo: 'Juancho', foto: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=500&q=60' },
+  { id: 2, nombre: 'María', apellido: 'Gómez', numero: '0412-9876543', notas: 'Proyecto de desarrollo', apodo: 'Mari', foto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=60' },
+  { id: 3, nombre: 'Carlos', apellido: 'López', numero: '0424-5555555', notas: 'Profesor de base de datos', apodo: 'Profe', foto: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=500&q=60' },
+  { id: 4, nombre: 'Ana', apellido: 'Martínez', numero: '0416-1112233', notas: 'Diseñadora UX/UI', apodo: 'Anita', foto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=500&q=60' },
 ];
 
 const ContactCardBasic = ({ contacto, onClick }) => (
@@ -76,6 +44,9 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(true); 
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // NUEVO ESTADO: Controla si estamos viendo el formulario de creación
+  const [isCreatingMode, setIsCreatingMode] = useState(false);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -100,12 +71,10 @@ function App() {
     setSelectedContact(null);
   };
 
-  // NUEVA FUNCIÓN: Elimina los acentos y diéresis de cualquier texto
   const quitarAcentos = (texto) => {
     return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   };
 
-  // BÚSQUEDA MEJORADA: Compara los textos sin importar mayúsculas o tildes
   const contactosFiltrados = contactos.filter(contacto => {
     const busquedaLimpia = quitarAcentos(searchTerm.toLowerCase());
     const nombreLimpio = quitarAcentos(contacto.nombre.toLowerCase());
@@ -116,14 +85,17 @@ function App() {
 
   const renderCard = (contacto) => {
     switch (viewStyle) {
-      case 'detailed': 
-        return <ContactCardDetailed key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
-      case 'avatar': 
-        return <ContactCardAvatar key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
+      case 'detailed': return <ContactCardDetailed key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
+      case 'avatar': return <ContactCardAvatar key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
       case 'basic':
-      default: 
-        return <ContactCardBasic key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
+      default: return <ContactCardBasic key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
     }
+  };
+
+  // NUEVA FUNCIÓN: Al presionar "Nuevo Contacto" abre el form y cierra el menú lateral
+  const handleOpenCreateForm = () => {
+    setIsCreatingMode(true);
+    setIsMenuOpen(false);
   };
 
   return (
@@ -160,7 +132,7 @@ function App() {
             </div>
             
             <div className="sidebar-menu">
-              <button className="btn-add" onClick={() => setIsMenuOpen(false)}>+ Nuevo Contacto</button>
+              <button className="btn-add" onClick={handleOpenCreateForm}>+ Nuevo Contacto</button>
             </div>
             
             <button className="btn-logout" onClick={handleLogout}>Cerrar Sesión</button>
@@ -196,6 +168,7 @@ function App() {
               )}
             </div>
 
+            {/* Popup de Detalle de Contacto */}
             {selectedContact && (
               <div className="modal-overlay" onClick={() => setSelectedContact(null)}>
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -216,6 +189,53 @@ function App() {
                 </div>
               </div>
             )}
+
+            {/* NUEVO: Popup del Formulario de Creación */}
+            {isCreatingMode && (
+              <div className="modal-overlay" onClick={() => setIsCreatingMode(false)}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                  <h2>Crear Nuevo Contacto</h2>
+                  
+                  {/* El formulario (aún sin lógica de guardado) */}
+                  <form>
+                    <div className="form-group">
+                      <label>Nombre</label>
+                      <input type="text" placeholder="Ej. Pedro" required />
+                    </div>
+                    <div className="form-group">
+                      <label>Apellido</label>
+                      <input type="text" placeholder="Ej. González" required />
+                    </div>
+                    <div className="form-group">
+                      <label>Teléfono</label>
+                      <input type="text" placeholder="Ej. 0414-1234567" required />
+                    </div>
+                    <div className="form-group">
+                      <label>URL de la Foto</label>
+                      <input type="text" placeholder="Pega el link de una imagen" />
+                    </div>
+                    <div className="form-group">
+                      <label>Apodo</label>
+                      <input type="text" placeholder="Opcional" />
+                    </div>
+                    <div className="form-group">
+                      <label>Notas</label>
+                      <textarea placeholder="Ej. Compañero de trabajo..."></textarea>
+                    </div>
+
+                    <div className="modal-actions">
+                      <button type="button" className="btn-close" onClick={() => setIsCreatingMode(false)}>
+                        Cancelar
+                      </button>
+                      <button type="submit" className="btn-save">
+                        Guardar
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+            
           </div>
         </>
       )}

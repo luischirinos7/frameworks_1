@@ -511,3 +511,53 @@ body.dark-mode .theme-toggle-btn {
     grid-template-columns: 1fr;
   }
 }
+/* =========================================
+   ESTILOS DEL FORMULARIO DE CREACIÓN
+   ========================================= */
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.btn-save {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Reglas para el modo oscuro del formulario */
+body.dark-mode .form-group label {
+  color: #fff;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea {
+  background-color: #2c2c2c;
+  color: #fff;
+  border-color: #444;
+}
