@@ -20,7 +20,7 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   position: sticky;
   top: 0;
-  z-index: 100; /* Asegura que la barra esté por encima de los contactos al hacer scroll */
+  z-index: 100;
 }
 
 .top-navbar h1 {
@@ -29,18 +29,118 @@ body {
   color: #333;
 }
 
+.profile-pic-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+  border: 2px solid #0066cc;
+  transition: transform 0.2s;
+}
+
+.profile-pic-btn:hover {
+  transform: scale(1.05);
+}
+
+/* =========================================
+   MENÚ LATERAL OCULTO (DRAWER)
+   ========================================= */
+.side-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.side-menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 280px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  padding: 25px 20px;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s ease;
+}
+
+.side-menu.open {
+  right: 0;
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.menu-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.btn-close-menu {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+.btn-add {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%;
+  font-size: 15px;
+}
+
+.btn-add:hover {
+  background: #218838;
+}
+
 .btn-logout {
   background: #ff4d4d;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
+  width: 100%;
+  font-size: 15px;
 }
 
 /* =========================================
-   CONTENEDORES PRINCIPALES
+   CONTENEDOR PRINCIPAL Y CONTROLES
    ========================================= */
 .app-container {
   padding: 30px 20px;
@@ -49,21 +149,35 @@ body {
 }
 
 .view-controls {
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 15px;
   background: white;
-  padding: 10px 20px;
+  padding: 15px 25px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.view-controls select {
-  padding: 5px 10px;
-  border-radius: 4px;
+.controls-left,
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.view-controls select,
+.search-bar {
+  padding: 10px 15px;
+  border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 14px;
+}
+
+.search-bar {
+  width: 300px;
 }
 
 /* =========================================
@@ -109,7 +223,7 @@ body {
    ========================================= */
 .contacts-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); 
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   align-items: start;
 }
@@ -118,7 +232,7 @@ body {
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
-  overflow: hidden; 
+  overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -129,45 +243,69 @@ body {
 }
 
 /* Versión 1: Básica */
-.card-basic { 
-  width: 100%; 
-  height: 90px; 
-  display: flex; 
-  align-items: center; 
-  padding-left: 10px; 
+.card-basic {
+  width: 100%;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
 }
-.card-basic img { 
-  width: 70px; 
-  height: 70px; 
-  border-radius: 50%; 
-  object-fit: cover; 
+
+.card-basic img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
 }
-.card-basic .info { 
-  padding: 0 15px; 
+
+.card-basic .info {
+  padding: 0 15px;
 }
-.card-basic h4 { margin: 0 0 4px 0; font-size: 16px; }
-.card-basic p { margin: 0; font-size: 13px; color: #555; }
+
+.card-basic h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+}
+
+.card-basic p {
+  margin: 0;
+  font-size: 13px;
+  color: #555;
+}
 
 /* Versión 2: Detallada */
-.card-detailed { 
-  width: 100%; 
-  min-height: 340px; 
-  display: flex; 
-  flex-direction: column; 
+.card-detailed {
+  width: 100%;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
 }
-.card-detailed img { 
-  width: 100%; 
-  height: 160px; 
-  object-fit: cover; 
+
+.card-detailed img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
 }
-.card-detailed .info { 
-  padding: 15px; 
+
+.card-detailed .info {
+  padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-.card-detailed h4 { margin: 0; font-size: 18px; }
-.card-detailed p { margin: 0; font-size: 13px; color: #444; line-height: 1.4; }
+
+.card-detailed h4 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.card-detailed p {
+  margin: 0;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.4;
+}
+
 .card-detailed .apodo-badge {
   background: #eef2f5;
   color: #0066cc;
@@ -180,36 +318,94 @@ body {
 }
 
 /* Versión 3: Avatar */
-.card-avatar { 
-  width: 110px; 
-  height: 110px; 
-  border-radius: 50%; 
-  margin: 0 auto; 
-}
-.card-avatar img { 
-  width: 100%; 
-  height: 100%; 
-  object-fit: cover; 
+.card-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  margin: 0 auto;
 }
 
-/* =========================================
-   MODAL / POPUP
-   ========================================= */
+.card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*POPUP CON ANIMACIÓN*/
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
 }
+
 .modal-content {
-  background: white; padding: 25px; border-radius: 12px; width: 400px; max-width: 90%;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  animation: slideUp 0.3s ease-out;
 }
+
 .modal-content img {
-  width: 100%; height: 250px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 15px;
 }
+
 .modal-actions {
-  margin-top: 25px; display: flex; justify-content: space-between;
+  margin-top: 25px;
+  display: flex;
+  justify-content: space-between;
 }
-.btn-delete { background: white; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
-.btn-close { background: #eee; color: #333; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+
+.btn-delete {
+  background: white;
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-close {
+  background: #eee;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
 /* =========================================
    MODO OSCURO Y BOTÓN FLOTANTE
@@ -217,7 +413,7 @@ body {
 .theme-toggle-btn {
   position: fixed;
   bottom: 25px;
-  right: 25px;
+  left: 25px;
   width: 55px;
   height: 55px;
   border-radius: 50%;
@@ -238,18 +434,17 @@ body {
   transform: scale(1.1);
 }
 
-/* Reglas del Modo Oscuro */
 body.dark-mode {
   background-color: #121212;
   color: #e0e0e0;
 }
 
-/* La barra superior ahora se incluye en las reglas oscuras */
 body.dark-mode .top-navbar,
 body.dark-mode .view-controls,
 body.dark-mode .login-form,
 body.dark-mode .contact-card,
-body.dark-mode .modal-content {
+body.dark-mode .modal-content,
+body.dark-mode .side-menu {
   background-color: #1e1e1e;
   border-color: #333;
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
@@ -273,7 +468,8 @@ body.dark-mode input {
   border-color: #444;
 }
 
-body.dark-mode .btn-close {
+body.dark-mode .btn-close,
+body.dark-mode .btn-close-menu {
   background-color: #333;
   color: #fff;
 }
@@ -286,4 +482,32 @@ body.dark-mode .apodo-badge {
 body.dark-mode .theme-toggle-btn {
   background-color: #f4f4f9;
   color: #222;
+}
+
+/* MEDIA QUERIES (RESPONSIVIDAD)*/
+@media (max-width: 1024px) {
+  .contacts-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .contacts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .view-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-bar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .contacts-grid {
+    grid-template-columns: 1fr;
+  }
 }
