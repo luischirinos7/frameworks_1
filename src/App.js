@@ -70,14 +70,27 @@ const ContactCardAvatar = ({ contacto, onClick }) => (
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
-  const [contactos, setContactos] = useState(datosIniciales);
+  
+  // MAGIA 1: Al cargar la app, busca si ya hay contactos guardados en el LocalStorage
+  const [contactos, setContactos] = useState(() => {
+    const contactosGuardados = localStorage.getItem('misContactos');
+    // Si hay datos guardados, los convierte de texto a código. Si no, usa los iniciales.
+    return contactosGuardados ? JSON.parse(contactosGuardados) : datosIniciales;
+  });
+
+  // MAGIA 2: Cada vez que la lista de "contactos" cambie, la guarda en el LocalStorage
+  useEffect(() => {
+    localStorage.setItem('misContactos', JSON.stringify(contactos));
+  }, [contactos]);
+
   const [selectedContact, setSelectedContact] = useState(null);
   const [viewStyle, setViewStyle] = useState('basic');
   const [isDarkMode, setIsDarkMode] = useState(true); 
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCreatingMode, setIsCreatingMode] = useState(false);
-
+  
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
@@ -110,6 +123,20 @@ function App() {
     setSelectedContact(null);
   };
 
+  const handleEditClick = (contacto) => {
+    setFormData({
+      nombre: contacto.nombre,
+      apellido: contacto.apellido,
+      numero: contacto.numero,
+      foto: contacto.foto,
+      apodo: contacto.apodo,
+      notas: contacto.notas
+    });
+    setEditingId(contacto.id); 
+    setIsFormOpen(true); 
+    setSelectedContact(null); 
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let finalValue = value;
@@ -129,45 +156,53 @@ function App() {
     });
   };
 
-  // NUEVA FUNCIÓN: Intercepta la tecla Enter y mueve el foco al siguiente campo
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Evita que el formulario se envíe
+      e.preventDefault(); 
       const form = e.target.form;
       const index = Array.prototype.indexOf.call(form, e.target);
-      // Busca el siguiente elemento en el formulario y lo enfoca
       if (form.elements[index + 1]) {
         form.elements[index + 1].focus();
       }
     }
   };
 
-  const handleCreateSubmit = (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
 
-    const nuevoContacto = {
-      id: Date.now(),
-      nombre: formData.nombre,
-      apellido: formData.apellido,
-      numero: formData.numero,
-      apodo: formData.apodo,
-      notas: formData.notas,
-      foto: formData.foto || 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=500&q=60'
-    };
+    if (editingId) {
+      const contactosActualizados = contactos.map(c => 
+        c.id === editingId ? { ...formData, id: editingId } : c
+      );
+      setContactos(contactosActualizados);
+    } else {
+      const nuevoContacto = {
+        id: Date.now(),
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        numero: formData.numero,
+        apodo: formData.apodo,
+        notas: formData.notas,
+        foto: formData.foto || 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=500&q=60'
+      };
+      setContactos([...contactos, nuevoContacto]);
+    }
 
-    setContactos([...contactos, nuevoContacto]);
-    
     setFormData({ nombre: '', apellido: '', numero: '', foto: '', apodo: '', notas: '' });
-    setIsCreatingMode(false);
+    setIsFormOpen(false);
+    setEditingId(null);
   };
 
   const handleOpenCreateForm = () => {
-    setIsCreatingMode(true);
+    setEditingId(null); 
+    setFormData({ nombre: '', apellido: '', numero: '', foto: '', apodo: '', notas: '' });
+    setIsFormOpen(true);
     setIsMenuOpen(false);
   };
 
-  const closeCreateForm = () => {
-    setIsCreatingMode(false);
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setEditingId(null);
     setFormData({ nombre: '', apellido: '', numero: '', foto: '', apodo: '', notas: '' });
   };
 
@@ -275,6 +310,9 @@ function App() {
                     <button className="btn-delete" onClick={() => handleDelete(selectedContact.id)}>
                       Borrar
                     </button>
+                    <button className="btn-edit" onClick={() => handleEditClick(selectedContact)}>
+                      Editar
+                    </button>
                     <button className="btn-close" onClick={() => setSelectedContact(null)}>
                       Cerrar
                     </button>
@@ -283,12 +321,12 @@ function App() {
               </div>
             )}
 
-            {isCreatingMode && (
-              <div className="modal-overlay" onClick={closeCreateForm}>
+            {isFormOpen && (
+              <div className="modal-overlay" onClick={closeForm}>
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                  <h2>Crear Nuevo Contacto</h2>
+                  <h2>{editingId ? 'Editar Contacto' : 'Crear Nuevo Contacto'}</h2>
                   
-                  <form onSubmit={handleCreateSubmit}>
+                  <form onSubmit={handleFormSubmit}>
                     <div className="form-group">
                       <label>Nombre</label>
                       <input 
@@ -297,7 +335,7 @@ function App() {
                         placeholder="Ej. Pedro" 
                         value={formData.nombre} 
                         onChange={handleInputChange} 
-                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                        onKeyDown={handleKeyDown}
                         required 
                         autoFocus
                       />
@@ -310,7 +348,7 @@ function App() {
                         placeholder="Ej. González" 
                         value={formData.apellido} 
                         onChange={handleInputChange} 
-                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                        onKeyDown={handleKeyDown}
                         required 
                       />
                     </div>
@@ -322,7 +360,7 @@ function App() {
                         placeholder="Ej. 0414-1234567" 
                         value={formData.numero} 
                         onChange={handleInputChange} 
-                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                        onKeyDown={handleKeyDown}
                         required 
                       />
                     </div>
@@ -334,7 +372,7 @@ function App() {
                         placeholder="Pega el link de una imagen" 
                         value={formData.foto} 
                         onChange={handleInputChange} 
-                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                        onKeyDown={handleKeyDown}
                       />
                     </div>
                     <div className="form-group">
@@ -345,12 +383,11 @@ function App() {
                         placeholder="Opcional" 
                         value={formData.apodo} 
                         onChange={handleInputChange} 
-                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                        onKeyDown={handleKeyDown}
                       />
                     </div>
                     <div className="form-group">
                       <label>Notas</label>
-                      {/* Aquí NO ponemos onKeyDown para que Enter haga saltos de línea normales */}
                       <textarea 
                         name="notas" 
                         placeholder="Ej. Compañero de trabajo..."
@@ -360,11 +397,11 @@ function App() {
                     </div>
 
                     <div className="modal-actions">
-                      <button type="button" className="btn-close" onClick={closeCreateForm}>
+                      <button type="button" className="btn-close" onClick={closeForm}>
                         Cancelar
                       </button>
                       <button type="submit" className="btn-save">
-                        Guardar
+                        {editingId ? 'Actualizar' : 'Guardar'}
                       </button>
                     </div>
                   </form>

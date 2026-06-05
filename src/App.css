@@ -331,7 +331,9 @@ body {
   object-fit: cover;
 }
 
-/*POPUP CON ANIMACIÓN*/
+/* =========================================
+   MODALES Y BOTONES
+   ========================================= */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -386,7 +388,8 @@ body {
 .modal-actions {
   margin-top: 25px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .btn-delete {
@@ -396,6 +399,17 @@ body {
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+  margin-right: auto;
+}
+
+.btn-edit {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 .btn-close {
@@ -405,6 +419,45 @@ body {
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+/* =========================================
+   ESTILOS DEL FORMULARIO DE CREACIÓN/EDICIÓN
+   ========================================= */
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.btn-save {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 /* =========================================
@@ -462,7 +515,8 @@ body.dark-mode .card-detailed p {
 }
 
 body.dark-mode select,
-body.dark-mode input {
+body.dark-mode input,
+body.dark-mode textarea {
   background-color: #2c2c2c;
   color: #fff;
   border-color: #444;
@@ -484,7 +538,13 @@ body.dark-mode .theme-toggle-btn {
   color: #222;
 }
 
-/* MEDIA QUERIES (RESPONSIVIDAD)*/
+body.dark-mode .form-group label {
+  color: #fff;
+}
+
+/* =========================================
+   MEDIA QUERIES (RESPONSIVIDAD)
+   ========================================= */
 @media (max-width: 1024px) {
   .contacts-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -495,12 +555,12 @@ body.dark-mode .theme-toggle-btn {
   .contacts-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
+  
   .view-controls {
     flex-direction: column;
     align-items: flex-start;
   }
-
+  
   .search-bar {
     width: 100%;
   }
@@ -510,54 +570,4 @@ body.dark-mode .theme-toggle-btn {
   .contacts-grid {
     grid-template-columns: 1fr;
   }
-}
-/* =========================================
-   ESTILOS DEL FORMULARIO DE CREACIÓN
-   ========================================= */
-.form-group {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 5px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #333;
-}
-
-.form-group input,
-.form-group textarea {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.btn-save {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-/* Reglas para el modo oscuro del formulario */
-body.dark-mode .form-group label {
-  color: #fff;
-}
-
-body.dark-mode .form-group input,
-body.dark-mode .form-group textarea {
-  background-color: #2c2c2c;
-  color: #fff;
-  border-color: #444;
 }
