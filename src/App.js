@@ -2,10 +2,42 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 const datosIniciales = [
-  { id: 1, nombre: 'Juan', apellido: 'Pérez', numero: '0414-1234567', notas: 'Compañero de la universidad', apodo: 'Juancho', foto: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=500&q=60' },
-  { id: 2, nombre: 'María', apellido: 'Gómez', numero: '0412-9876543', notas: 'Proyecto de desarrollo', apodo: 'Mari', foto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=60' },
-  { id: 3, nombre: 'Carlos', apellido: 'López', numero: '0424-5555555', notas: 'Profesor de base de datos', apodo: 'Profe', foto: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=500&q=60' },
-  { id: 4, nombre: 'Ana', apellido: 'Martínez', numero: '0416-1112233', notas: 'Diseñadora UX/UI', apodo: 'Anita', foto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=500&q=60' },
+  { 
+    id: 1, 
+    nombre: 'Juan', 
+    apellido: 'Pérez', 
+    numero: '0414-1234567', 
+    notas: 'Compañero de la universidad', 
+    apodo: 'Juancho', 
+    foto: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=500&q=60' 
+  },
+  { 
+    id: 2, 
+    nombre: 'María', 
+    apellido: 'Gómez', 
+    numero: '0412-9876543', 
+    notas: 'Proyecto de desarrollo', 
+    apodo: 'Mari', 
+    foto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=60' 
+  },
+  { 
+    id: 3, 
+    nombre: 'Carlos', 
+    apellido: 'López', 
+    numero: '0424-5555555', 
+    notas: 'Profesor de base de datos', 
+    apodo: 'Profe', 
+    foto: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=500&q=60' 
+  },
+  { 
+    id: 4, 
+    nombre: 'Ana', 
+    apellido: 'Martínez', 
+    numero: '0416-1112233', 
+    notas: 'Diseñadora UX/UI', 
+    apodo: 'Anita', 
+    foto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=500&q=60' 
+  },
 ];
 
 const ContactCardBasic = ({ contacto, onClick }) => (
@@ -44,9 +76,16 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(true); 
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  // NUEVO ESTADO: Controla si estamos viendo el formulario de creación
   const [isCreatingMode, setIsCreatingMode] = useState(false);
+
+  const [formData, setFormData] = useState({
+    nombre: '',
+    apellido: '',
+    numero: '',
+    foto: '',
+    apodo: '',
+    notas: ''
+  });
 
   useEffect(() => {
     if (isDarkMode) {
@@ -71,6 +110,67 @@ function App() {
     setSelectedContact(null);
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let finalValue = value;
+
+    if (name === 'numero') {
+      const soloNumeros = value.replace(/[^\d]/g, '');
+      if (soloNumeros.length <= 4) {
+        finalValue = soloNumeros;
+      } else {
+        finalValue = `${soloNumeros.slice(0, 4)}-${soloNumeros.slice(4, 11)}`;
+      }
+    }
+
+    setFormData({
+      ...formData,
+      [name]: finalValue
+    });
+  };
+
+  // NUEVA FUNCIÓN: Intercepta la tecla Enter y mueve el foco al siguiente campo
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Evita que el formulario se envíe
+      const form = e.target.form;
+      const index = Array.prototype.indexOf.call(form, e.target);
+      // Busca el siguiente elemento en el formulario y lo enfoca
+      if (form.elements[index + 1]) {
+        form.elements[index + 1].focus();
+      }
+    }
+  };
+
+  const handleCreateSubmit = (e) => {
+    e.preventDefault();
+
+    const nuevoContacto = {
+      id: Date.now(),
+      nombre: formData.nombre,
+      apellido: formData.apellido,
+      numero: formData.numero,
+      apodo: formData.apodo,
+      notas: formData.notas,
+      foto: formData.foto || 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=500&q=60'
+    };
+
+    setContactos([...contactos, nuevoContacto]);
+    
+    setFormData({ nombre: '', apellido: '', numero: '', foto: '', apodo: '', notas: '' });
+    setIsCreatingMode(false);
+  };
+
+  const handleOpenCreateForm = () => {
+    setIsCreatingMode(true);
+    setIsMenuOpen(false);
+  };
+
+  const closeCreateForm = () => {
+    setIsCreatingMode(false);
+    setFormData({ nombre: '', apellido: '', numero: '', foto: '', apodo: '', notas: '' });
+  };
+
   const quitarAcentos = (texto) => {
     return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   };
@@ -90,12 +190,6 @@ function App() {
       case 'basic':
       default: return <ContactCardBasic key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
     }
-  };
-
-  // NUEVA FUNCIÓN: Al presionar "Nuevo Contacto" abre el form y cierra el menú lateral
-  const handleOpenCreateForm = () => {
-    setIsCreatingMode(true);
-    setIsMenuOpen(false);
   };
 
   return (
@@ -168,7 +262,6 @@ function App() {
               )}
             </div>
 
-            {/* Popup de Detalle de Contacto */}
             {selectedContact && (
               <div className="modal-overlay" onClick={() => setSelectedContact(null)}>
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -190,41 +283,84 @@ function App() {
               </div>
             )}
 
-            {/* NUEVO: Popup del Formulario de Creación */}
             {isCreatingMode && (
-              <div className="modal-overlay" onClick={() => setIsCreatingMode(false)}>
+              <div className="modal-overlay" onClick={closeCreateForm}>
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                   <h2>Crear Nuevo Contacto</h2>
                   
-                  {/* El formulario (aún sin lógica de guardado) */}
-                  <form>
+                  <form onSubmit={handleCreateSubmit}>
                     <div className="form-group">
                       <label>Nombre</label>
-                      <input type="text" placeholder="Ej. Pedro" required />
+                      <input 
+                        type="text" 
+                        name="nombre" 
+                        placeholder="Ej. Pedro" 
+                        value={formData.nombre} 
+                        onChange={handleInputChange} 
+                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                        required 
+                        autoFocus
+                      />
                     </div>
                     <div className="form-group">
                       <label>Apellido</label>
-                      <input type="text" placeholder="Ej. González" required />
+                      <input 
+                        type="text" 
+                        name="apellido" 
+                        placeholder="Ej. González" 
+                        value={formData.apellido} 
+                        onChange={handleInputChange} 
+                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                        required 
+                      />
                     </div>
                     <div className="form-group">
                       <label>Teléfono</label>
-                      <input type="text" placeholder="Ej. 0414-1234567" required />
+                      <input 
+                        type="text" 
+                        name="numero" 
+                        placeholder="Ej. 0414-1234567" 
+                        value={formData.numero} 
+                        onChange={handleInputChange} 
+                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                        required 
+                      />
                     </div>
                     <div className="form-group">
                       <label>URL de la Foto</label>
-                      <input type="text" placeholder="Pega el link de una imagen" />
+                      <input 
+                        type="text" 
+                        name="foto" 
+                        placeholder="Pega el link de una imagen" 
+                        value={formData.foto} 
+                        onChange={handleInputChange} 
+                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                      />
                     </div>
                     <div className="form-group">
                       <label>Apodo</label>
-                      <input type="text" placeholder="Opcional" />
+                      <input 
+                        type="text" 
+                        name="apodo" 
+                        placeholder="Opcional" 
+                        value={formData.apodo} 
+                        onChange={handleInputChange} 
+                        onKeyDown={handleKeyDown} /* <--- Evento añadido */
+                      />
                     </div>
                     <div className="form-group">
                       <label>Notas</label>
-                      <textarea placeholder="Ej. Compañero de trabajo..."></textarea>
+                      {/* Aquí NO ponemos onKeyDown para que Enter haga saltos de línea normales */}
+                      <textarea 
+                        name="notas" 
+                        placeholder="Ej. Compañero de trabajo..."
+                        value={formData.notas} 
+                        onChange={handleInputChange}
+                      ></textarea>
                     </div>
 
                     <div className="modal-actions">
-                      <button type="button" className="btn-close" onClick={() => setIsCreatingMode(false)}>
+                      <button type="button" className="btn-close" onClick={closeCreateForm}>
                         Cancelar
                       </button>
                       <button type="submit" className="btn-save">
@@ -232,6 +368,7 @@ function App() {
                       </button>
                     </div>
                   </form>
+
                 </div>
               </div>
             )}
