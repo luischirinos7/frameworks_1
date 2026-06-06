@@ -41,6 +41,16 @@ const ContactCardAvatar = ({ contacto, onClick }) => (
   </div>
 );
 
+const ContactCardCompact = ({ contacto, onClick }) => (
+  <div className="contact-card card-compact" onClick={() => onClick(contacto)}>
+    <div>
+      <h4>{contacto.nombre} {contacto.apellido}</h4>
+      <p>{contacto.apodo ? `"${contacto.apodo}"` : 'Sin apodo'}</p>
+    </div>
+    <span style={{fontSize: '20px'}}>📞</span>
+  </div>
+);
+
 function App() {
   const [isAuth, setIsAuth] = useState(false);
   
@@ -194,11 +204,12 @@ function App() {
   const contactosOrdenados = [...contactosFiltrados].sort((a, b) => {
     return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
   });
-
+  
   const renderCard = (contacto) => {
     switch (viewStyle) {
       case 'detailed': return <ContactCardDetailed key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
       case 'avatar': return <ContactCardAvatar key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
+      case 'compact': return <ContactCardCompact key={contacto.id} contacto={contacto} onClick={setSelectedContact} />; // <-- AQUI
       case 'basic':
       default: return <ContactCardBasic key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
     }
@@ -279,6 +290,7 @@ function App() {
                   <option value="basic">Básica (Lista)</option>
                   <option value="detailed">Detallada</option>
                   <option value="avatar">Avatares</option>
+                  <option value="compact">Compacta</option>
                 </select>
               </div>
             </div>

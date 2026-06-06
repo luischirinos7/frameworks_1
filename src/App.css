@@ -339,6 +339,19 @@ body {
   object-fit: cover;
 }
 
+/* Versión 4: Compacta */
+.card-compact {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid #0066cc;
+}
+
+.card-compact h4 { margin: 0; font-size: 15px; }
+.card-compact p { margin: 0; font-size: 12px; color: #777; }
+
 /* =========================================
    MODALES Y BOTONES
    ========================================= */
