@@ -190,6 +190,14 @@ body {
   height: 100vh;
 }
 
+.error-msg {
+  color: #ff4d4d;
+  font-size: 14px;
+  text-align: center;
+  margin: -5px 0 5px 0;
+  font-weight: bold;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;

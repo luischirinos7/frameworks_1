@@ -4,40 +4,13 @@ import './App.css';
 const datosIniciales = [
   { 
     id: 1, 
-    nombre: 'Juan', 
-    apellido: 'Pérez', 
-    numero: '0414-1234567', 
-    notas: 'Compañero de la universidad', 
-    apodo: 'Juancho', 
-    foto: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=500&q=60' 
-  },
-  { 
-    id: 2, 
-    nombre: 'María', 
-    apellido: 'Gómez', 
-    numero: '0412-9876543', 
-    notas: 'Proyecto de desarrollo', 
-    apodo: 'Mari', 
-    foto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=60' 
-  },
-  { 
-    id: 3, 
-    nombre: 'Carlos', 
-    apellido: 'López', 
-    numero: '0424-5555555', 
-    notas: 'Profesor de base de datos', 
-    apodo: 'Profe', 
-    foto: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=500&q=60' 
-  },
-  { 
-    id: 4, 
-    nombre: 'Ana', 
-    apellido: 'Martínez', 
-    numero: '0416-1112233', 
-    notas: 'Diseñadora UX/UI', 
-    apodo: 'Anita', 
-    foto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=500&q=60' 
-  },
+    nombre: 'Soporte', 
+    apellido: 'Técnico', 
+    numero: '0412-1661812', 
+    notas: 'Canal oficial para ayuda y reporte de fallas en la aplicación.', 
+    apodo: 'Admin', 
+    foto: 'https://cdn-icons-png.flaticon.com/512/1067/1067566.png' 
+  }
 ];
 
 const ContactCardBasic = ({ contacto, onClick }) => (
@@ -71,20 +44,22 @@ const ContactCardAvatar = ({ contacto, onClick }) => (
 function App() {
   const [isAuth, setIsAuth] = useState(false);
   
-  // MAGIA 1: Al cargar la app, busca si ya hay contactos guardados en el LocalStorage
+  const [loginUser, setLoginUser] = useState('');
+  const [loginPass, setLoginPass] = useState('');
+  const [loginError, setLoginError] = useState(false);
+
   const [contactos, setContactos] = useState(() => {
     const contactosGuardados = localStorage.getItem('misContactos');
-    // Si hay datos guardados, los convierte de texto a código. Si no, usa los iniciales.
     return contactosGuardados ? JSON.parse(contactosGuardados) : datosIniciales;
   });
 
-  // MAGIA 2: Cada vez que la lista de "contactos" cambie, la guarda en el LocalStorage
   useEffect(() => {
     localStorage.setItem('misContactos', JSON.stringify(contactos));
   }, [contactos]);
 
   const [selectedContact, setSelectedContact] = useState(null);
   const [viewStyle, setViewStyle] = useState('basic');
+  
   const [isDarkMode, setIsDarkMode] = useState(true); 
   const [searchTerm, setSearchTerm] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -92,12 +67,7 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    numero: '',
-    foto: '',
-    apodo: '',
-    notas: ''
+    nombre: '', apellido: '', numero: '', foto: '', apodo: '', notas: ''
   });
 
   useEffect(() => {
@@ -110,7 +80,14 @@ function App() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    setIsAuth(true); 
+    if (loginUser === 'admin' && loginPass === '1234') {
+      setIsAuth(true); 
+      setLoginError(false);
+      setLoginUser('');
+      setLoginPass('');
+    } else {
+      setLoginError(true);
+    }
   };
 
   const handleLogout = () => {
@@ -125,12 +102,8 @@ function App() {
 
   const handleEditClick = (contacto) => {
     setFormData({
-      nombre: contacto.nombre,
-      apellido: contacto.apellido,
-      numero: contacto.numero,
-      foto: contacto.foto,
-      apodo: contacto.apodo,
-      notas: contacto.notas
+      nombre: contacto.nombre, apellido: contacto.apellido, numero: contacto.numero,
+      foto: contacto.foto, apodo: contacto.apodo, notas: contacto.notas
     });
     setEditingId(contacto.id); 
     setIsFormOpen(true); 
@@ -218,6 +191,10 @@ function App() {
     return nombreLimpio.includes(busquedaLimpia) || apellidoLimpio.includes(busquedaLimpia);
   });
 
+  const contactosOrdenados = [...contactosFiltrados].sort((a, b) => {
+    return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
+  });
+
   const renderCard = (contacto) => {
     switch (viewStyle) {
       case 'detailed': return <ContactCardDetailed key={contacto.id} contacto={contacto} onClick={setSelectedContact} />;
@@ -233,8 +210,25 @@ function App() {
         <div className="login-container">
           <form className="login-form" onSubmit={handleLogin}>
             <h2>Gestor de Contactos</h2>
-            <input type="text" placeholder="Usuario" required autoFocus />
-            <input type="password" placeholder="Contraseña" required />
+            
+            <input 
+              type="text" 
+              placeholder="Usuario" 
+              value={loginUser}
+              onChange={(e) => setLoginUser(e.target.value)}
+              required 
+              autoFocus 
+            />
+            <input 
+              type="password" 
+              placeholder="Contraseña" 
+              value={loginPass}
+              onChange={(e) => setLoginPass(e.target.value)}
+              required 
+            />
+            
+            {loginError && <p className="error-msg">Usuario o contraseña incorrectos</p>}
+            
             <button type="submit">Ingresar</button>
           </form>
         </div>
@@ -290,8 +284,8 @@ function App() {
             </div>
 
             <div className="contacts-grid">
-              {contactosFiltrados.length > 0 ? (
-                contactosFiltrados.map(renderCard)
+              {contactosOrdenados.length > 0 ? (
+                contactosOrdenados.map(renderCard)
               ) : (
                 <p>No se encontraron contactos.</p>
               )}
